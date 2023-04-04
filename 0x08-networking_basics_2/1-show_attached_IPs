@@ -10,3 +10,4 @@ for interface in $active_interfaces; do
   echo $ipv4_address
 done
 
+
