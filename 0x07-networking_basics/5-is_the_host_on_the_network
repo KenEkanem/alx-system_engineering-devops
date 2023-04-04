@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # Pings an IP address received as a string argument 5 times.
 
-if [ $# -eq 0 ]; then
+if [[ $# -ne 1 ]]; then
     echo "Usage: $0 {IP_ADDRESS}"
     exit 1
 fi
 
 ping -c 5 "$1"
+
