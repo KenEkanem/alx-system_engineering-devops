@@ -3,4 +3,4 @@
 # Connects with user Ubuntu using the private key
 
 ssh -i ~/.ssh/school
-ssh ubuntu@52.206.218.84
+ssh ubuntu@52.87.220.87
