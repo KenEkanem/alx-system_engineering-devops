@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# Install NGINX server, set mensaje and redirection the server
+apt-get -y update
+apt-get -y install nginx
+echo "Hello World!" > /var/www/html/index.nginx-debian.html
+sudo mkdir /var/www/error
+echo "Ceci n'est pas une page" > /var/www/error/404.html
+echo "server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    root   /var/www/html;
+    index  index.html index.htm index.nginx-debian.html;
+    
+    server_name _;
+    
+    location /redirect_me {
+        return 301 http://fusedtc/;
+    }
+
+    error_page 404 /404.html;
+    location /404 {
+      root /var/www/error;
+      internal;
+    }
+}" > /etc/nginx/sites-available/default
+service nginx restart
