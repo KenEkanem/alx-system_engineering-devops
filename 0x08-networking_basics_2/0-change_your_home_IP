@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#Change your home IP
+# This script changes your home IP
 
 cp /etc/hosts ~/hosts.new
 sed -i 's/127.0.0.1/127.0.0.2/' ~/hosts.new
