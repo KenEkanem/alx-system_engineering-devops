@@ -2,6 +2,6 @@
 # This script changes your home IP
 
 cp /etc/hosts ~/hosts.new
-sed -i '/^127\.0\.0\.1.*localhost$/s/^127\.0\.0\.1/002/' ~/hosts.new
-sed -i "\$a8.8.8.8 facebook.com" ~/hosts.new
-sudo cp -f ~/hosts.new /etc/hosts
+echo "127.0.0.2		localhost" > ~/hosts.new
+echo "8.8.8.8		facebook.com" >> ~/hosts.new
+cp -f ~/hosts.new /etc/hosts
