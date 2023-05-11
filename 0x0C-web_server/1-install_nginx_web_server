@@ -9,3 +9,15 @@ sudo chmod a+w "$ROOT_FILE_PATH"
 sudo echo "Hello World!" > "$ROOT_FILE_PATH"
 sudo chmod a-w "$ROOT_FILE_PATH"
 sudo service nginx restart
+
+if curl -sSf http://localhost:80/ > /dev/null; then
+  echo "Server is responding with 200 OK"
+else
+  echo "Server is not responding with 200 OK"
+fi
+
+if curl -sSf http://localhost:80/ | grep -q "Hello World!"; then
+  echo "Server is returning 'Hello World!'"
+else
+  echo "Server is not returning 'Hello World!'"
+fi
