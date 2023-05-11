@@ -1,21 +1,6 @@
-#!/usr/bin/env /bash
-
-# This script configures an Ubuntu server as follows:
-#   - localhost resolves to 127.0.0.2
-#   - facebook.com resolves to 8.8.8.8
-
-# Copy the contents of /etc/hosts to a new file in the user's home directory
-sudo cp /etc/hosts ~/hosts.new
-
-# Replace the line that maps localhost to 127.0.0.1 with a new line that maps it to 127.0.0.2, and appends a new line to map facebook.com to 8.8.8.8
-sudo sed -i '/^127.0.0.1/s/$/ localhost\n8.8.8.8 facebook.com/' ~/hosts.new
-
-# Overwrite the original /etc/hosts file with the modified hosts.new file
-sudo cp -f ~/hosts.new /etc/hosts
-
-echo "Done! Localhost now resolves to 127.0.0.2 and facebook.com resolves to 8.8.8.8."
-
-# IMPORTANT: Be sure to revert the changes made to /etc/hosts after you're done testing!
-# Run this command to revert the changes:
-# sudo sed -i 's/127.*$/127.0.0.1 localhost/' /etc/hosts
-
+#!/usr/bin/env bash
+# Change your home IP
+cp /etc/hosts ~/hosts.new
+sed -i 's/127.0.0.1/127.0.0.2/' ~/hosts.new
+sed -i "\$a8.8.8.8 facebook.com" ~/hosts.new
+cp -f ~/hosts.new /etc/hosts
