@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
-# install nginx
+# Installs and sets up a simple Nginx web server on web-01
+ROOT_FILE_PATH="/var/www/html/index.html"
 
-apt-get update -y
-apt-get install -y nginx
-echo 'Hello World!' > /var/www/html/index.nginx-debian.html
-service nginx restart
+sudo apt-get update
+sudo apt-get -y install nginx
+sudo touch "$ROOT_FILE_PATH"
+sudo chmod a+w "$ROOT_FILE_PATH"
+sudo echo "Hello World!" > "$ROOT_FILE_PATH"
+sudo chmod a-w "$ROOT_FILE_PATH"
+sudo service nginx restart
