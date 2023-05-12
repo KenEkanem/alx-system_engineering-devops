@@ -1,33 +1,23 @@
-# This script installs Nginx using Puppet
-
-package {'nginx':
-  ensure => 'present',
+# Install Nginx package
+package { 'nginx':
+  ensure => present,
 }
 
-exec {'install':
-  command  => 'sudo apt-get update ; sudo apt-get -y install nginx',
-  provider => shell,
+# Configure custom Nginx site
+file { '/etc/nginx/sites-available/default':
+  content => template('nginx/custom-config.erb'),
+  notify => service['nginx'],
 }
 
-file {'/var/www/html/index.html':
-  ensure  => 'file',
+# Set up index.html with Hello World!
+file { '/var/www/html/index.html':
   content => 'Hello World!',
+  notify => service['nginx'],
 }
 
-file {'/etc/nginx/sites-available/default':
-  ensure => 'file',
-  source => '/path/to/default.conf',
+# Restart Nginx service
+service { 'nginx':
+  ensure => running,
+  enable => true,
 }
-
-file {'/etc/nginx/sites-enabled/default':
-  ensure => 'link',
-  target => '/etc/nginx/sites-available/default',
-}
-
-exec {'restart':
-  command => 'sudo service nginx restart',
-  require => [Package['nginx'], File['/etc/nginx/sites-enabled/default']],
-}
-
-
 
