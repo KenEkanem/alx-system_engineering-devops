@@ -5,7 +5,7 @@ apt-get -y install nginx
 
 # set a custom 404 error page
 
-echo "Hello World!" >> /var/www/html/index.nginx-debian.html
+echo "Hello World!" > /var/www/html/index.nginx-debian.html
 
 sudo mkdir -p /var/www/error
 echo "Ceci n'est pas une page" > /var/www/error/404.html
