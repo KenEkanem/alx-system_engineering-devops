@@ -12,7 +12,7 @@ echo "server {
     server_name _;
 
     location /redirect_me {
-        return 301 http://fusedtc/;
+        return 301 http://fusedtc.tech/;
     }
 }" > /etc/nginx/sites-available/default
 service nginx restart
