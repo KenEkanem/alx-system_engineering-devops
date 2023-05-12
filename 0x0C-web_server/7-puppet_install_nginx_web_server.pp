@@ -1,13 +1,33 @@
-server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-    root /var/www/html;
-    index index.html;
+# This script installs Nginx using Puppet
 
-    server_name _;
-
-    location /redirect_me {
-        return 301 https://fusedtc.tech/;
-    }
+package {'nginx':
+  ensure => 'present',
 }
+
+exec {'install':
+  command  => 'sudo apt-get update ; sudo apt-get -y install nginx',
+  provider => shell,
+}
+
+file {'/var/www/html/index.html':
+  ensure  => 'file',
+  content => 'Hello World!',
+}
+
+file {'/etc/nginx/sites-available/default':
+  ensure => 'file',
+  source => '/path/to/default.conf',
+}
+
+file {'/etc/nginx/sites-enabled/default':
+  ensure => 'link',
+  target => '/etc/nginx/sites-available/default',
+}
+
+exec {'restart':
+  command => 'sudo service nginx restart',
+  require => [Package['nginx'], File['/etc/nginx/sites-enabled/default']],
+}
+
+
 
