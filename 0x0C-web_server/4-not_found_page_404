@@ -6,7 +6,7 @@ apt-get -y install nginx
 # set a custon 404 error page
 
 echo "Hello World!" > /var/www/html/index.nginx-debian.html
-sudo mkdir /var/www/error
+sudo mkdir -p /var/www/error
 echo "Ceci n'est pas une page" > /var/www/error/404.html
 echo "server {
     listen 80 default_server;
