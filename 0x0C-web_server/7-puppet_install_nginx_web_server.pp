@@ -1,23 +1,26 @@
-# Install Nginx package
-package { 'nginx':
-  ensure => present,
+# Script to install nginx using puppet
+
+package {'nginx':
+  ensure => 'present',
 }
 
-# Configure custom Nginx site
-file { '/etc/nginx/sites-available/default':
-  content => template('nginx/custom-config.erb'),
-  notify => service['nginx'],
+exec {'install':
+  command  => 'sudo apt-get update ; sudo apt-get -y install nginx',
+  provider => shell,
+
 }
 
-# Set up index.html with Hello World!
-file { '/var/www/html/index.html':
-  content => 'Hello World!',
-  notify => service['nginx'],
+exec {'Hello':
+  command  => 'echo "Hello World!" | sudo tee /var/www/html/index.html',
+  provider => shell,
 }
 
-# Restart Nginx service
-service { 'nginx':
-  ensure => running,
-  enable => true,
+exec {'sudo sed -i "s/listen 80 default_server;/listen 80 default_server;\\n\\tlocation \/redirect_me {\\n\\t\\treturn 301 https:\/\/fusedtc.tech\/;\\n\\t}/" /etc/nginx/sites-available/default':
+  provider => shell,
+}
+
+exec {'run':
+  command  => 'sudo service nginx restart',
+  provider => shell,
 }
 
