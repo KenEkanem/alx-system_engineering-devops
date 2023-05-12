@@ -1,46 +1,19 @@
 #!/usr/bin/env bash
+# This script installs and configures your Nginx server to have a custom 404 page
+sudo apt-get update
+sudo apt-get install -y nginx
 
-# Install NGINX server
-apt-get -y update
-apt-get -y install nginx
+# code to redirect a specific endpoint (eg: redirect /redirect_me to fazzy.tech)
+echo "Hello World!" | sudo tee /var/www/html/index.html
+string_for_replacement="server_name _;\n\trewrite ^\/redirect_me https:\/\/fusedtc.tech permanent;"
+sudo sed -i "s/server_name _;/$string_for_replacement/" /etc/nginx/sites-enabled/default
 
-# Set a custom 404 error page
-sudo mkdir -p /var/www/error
-echo "<html>
-<head>
-<title>404 Not Found</title>
-</head>
-<body>
-<h1>404 Not Found</h1>
-<p>Ceci n'est pas une page</p>
-</body>
-</html>" > /var/www/error/404.html
+# code to create error page and add a redirect for error 404
+echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html
+sudo sed -i "/error_page 404 \/404.html;/d" /etc/nginx/sites-enabled/default
+string_for_replacement="error_page 404 \/404.html;\n\tlocation = \/404.html {\n\t\troot \/var\/www\/html;\n\t\tinternal;\n\t}"
+sudo sed -i "s/listen 80 default_server;/$string_for_replacement/" /etc/nginx/sites-enabled/default
 
-# Configure NGINX server to use the custom 404 error page
-echo "server {
-    listen 80 default_server;
-    listen [::]:80 default_server;
-
-    root /var/www/html;
-    index index.html index.htm index.nginx-debian.html;
-
-    server_name _;
-
-    location /redirect_me {
-        return 301 http://fusedtc.tech/;
-    }
-
-    error_page 404 /404.html;
-
-    location = /404.html {
-        internal;
-    }
-
-    location / {
-        try_files \$uri \$uri/ =404;
-    }
-}" > /etc/nginx/sites-available/default
-
-# Restart NGINX server to apply changes
-systemctl restart nginx
+# restart the server
+sudo service nginx restart
 
