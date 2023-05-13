@@ -4,42 +4,20 @@
 sudo apt-get update
 sudo apt-get install -y nginx
 
-# create index and 404 pages
-sudo tee /var/www/html/index.html > /dev/null <<EOF
-Hello World!
-EOF
+# Create index.html with "Hello World!" content
+echo "Hello World!" | sudo tee /var/www/html/index.html
 
-sudo tee /var/www/html/404.html > /dev/null <<EOF
-Ceci n'est pas une page
-EOF
+# Set up redirect from /redirect_me to https://fusedtc.tech
+redirect_config="server_name _;\n\trewrite ^/redirect_me https://fusedtc.tech permanent;"
+sudo sed -i "s/server_name _;/$redirect_config/" /etc/nginx/sites-enabled/default
 
-# configure nginx
-sudo tee /etc/nginx/sites-available/custom404 > /dev/null <<EOF
-server {
-    listen 80 default_server;
-    root /var/www/html;
-    index index.html index.htm index.nginx-debian.html;
-    server_name _;
+# Create custom 404 page with "Ceci n'est pas une page" content
+echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html
 
-    location / {
-        try_files \$uri \$uri/ =404;
-    }
+# Set up custom 404 page and redirect
+error_config="listen 80 default_server;\n\terror_page 404 /404.html;\n\tlocation = /404.html {\n\t\troot /var/www/html;\n\t\tinternal;\n\t}"
+sudo sed -i "s/listen 80 default_server;/$error_config/" /etc/nginx/sites-enabled/default
 
-    location = /404.html {
-        internal;
-    }
+# Restart Nginx service to apply changes
+sudo service nginx restart
 
-    error_page 404 /404.html;
-
-    location = /redirect_me {
-        rewrite ^ https://fusedtc.tech permanent;
-    }
-}
-EOF
-
-# remove the default config file and enable the custom one
-sudo rm /etc/nginx/sites-enabled/default
-sudo ln -s /etc/nginx/sites-available/custom404 /etc/nginx/sites-enabled/
-
-# restart nginx
-sudo systemctl restart nginx
