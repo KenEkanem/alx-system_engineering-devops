@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# This script installs and configures HAProxy as a load balancer for two web servers.
+
+# Define backend servers
+web_server_1="52.87.220.87"
+web_server_2="100.24.238.7"
+web_server_name_1="60352-web-01"
+web_server_name_2="60352-web-02"
+
+# Update packages and install HAProxy
+echo "Updating packages and installing HAProxy..."
+sudo apt-get update -y -qq || { echo "Failed to update packages"; exit 1; }
+sudo apt-get install -y haproxy -qq || { echo "Failed to install HAProxy"; exit 1; }
+echo "HAProxy installation complete."
+
+# Backup default configuration file
+echo "Backing up default configuration file..."
+sudo cp /etc/haproxy/haproxy.cfg /etc/haproxy/haproxy.cfg.backup || { echo "Failed to backup configuration file"; exit 1; }
+echo "Default configuration file backed up."
+
+# Configure HAProxy
+echo "Configuring HAProxy..."
+cat << EOF | sudo tee /etc/haproxy/haproxy.cfg >/dev/null
+defaults
+  mode http
+  timeout client 15s
+  timeout connect 10s
+  timeout server 15s
+  timeout http-request 10s
+
+frontend MywebApp-frontend
+  bind *:80
+  default_backend MywebApp-backend
+
+backend MywebApp-backend
+  balance roundrobin
+  server $web_server_name_1 $web_server_1:80 check
+  server $web_server_name_2 $web_server_2:80 check
+EOF
+echo "HAProxy configuration complete."
+
+# Enable HAProxy to be started by init script
+echo "Enabling HAProxy..."
+echo "ENABLED=1" | sudo tee /etc/default/haproxy >/dev/null
+
+# Start or restart HAProxy service
+echo "Starting or restarting HAProxy service..."
+if sudo service haproxy status >/dev/null; then
+  sudo service haproxy restart
+else
+  sudo service haproxy start
+fi
+echo "HAProxy service started or restarted."
+
