@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# This script installs and configures HAProxy as a load balancer for two web servers.
+# This will script install and configures HAProxy as a load balancer for two web servers.
 
 # Define backend servers
 web_server_1="52.87.220.87"
