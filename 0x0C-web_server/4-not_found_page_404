@@ -1,22 +1,14 @@
 #!/usr/bin/env bash
 # update and install nginx
 
+# Update the package index and install nginx
 sudo apt-get update
 sudo apt-get install -y nginx
 
-# Create index.html with "Hello World!" content
-echo "Hello World!" | sudo tee /var/www/html/index.html
-
-# Set up redirect from /redirect_me to https://fusedtc.tech
-redirect_config="server_name _;\n\trewrite ^/redirect_me https://fusedtc.tech permanent;"
-sudo sed -i "s/server_name _;/$redirect_config/" /etc/nginx/sites-enabled/default
-
-# Create custom 404 page with "Ceci n'est pas une page" content
+# Set up custom 404 page with the required string
 echo "Ceci n'est pas une page" | sudo tee /var/www/html/404.html
+sudo sed -i '/listen 80 default_server;/a \\terror_page 404 \/404.html;\n\tlocation = \/404.html {\n\t\tinternal;\n\t\troot \/var\/www\/html;\n\t}' /etc/nginx/sites-available/default
 
-# Set up custom 404 page and redirect
-error_config="listen 80 default_server;\n\terror_page 404 /404.html;\n\tlocation = /404.html {\n\t\troot /var/www/html;\n\t\tinternal;\n\t}"
-sudo sed -i "s/listen 80 default_server;/$error_config/" /etc/nginx/sites-enabled/default
 
 # Restart Nginx service to apply changes
 sudo service nginx restart
