@@ -2,8 +2,8 @@
 # This will script install and configures HAProxy as a load balancer for two web servers.
 
 # Define backend servers
-web_server_1="52.87.220.87"
-web_server_2="100.24.238.7"
+web_server_1="34.227.93.91"
+web_server_2="35.175.128.93"
 web_server_name_1="60352-web-01"
 web_server_name_2="60352-web-02"
 
