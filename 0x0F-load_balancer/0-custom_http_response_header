@@ -1,69 +1,28 @@
 #!/usr/bin/env bash
-# This script configures web-02 to be identical to web-01
-# Enable debugging
-set -x
+# This script configures a brand new Ubuntu machine to the requirements asked in this task
 
-# Check if a command is installed and install it if it's not already installed
-function install() {
-  if ! command -v "$1" &> /dev/null; then
-    echo "Installing $1..."
-    sudo apt-get update -y -qq && \
-    sudo apt-get install -y "$1" -qq
-  else
-    echo "$1 is already installed."
-  fi
-}
+apt-get update
+apt-get install -y nginx
+mkdir -p /var/www/html
+touch /var/www/html/index.html
+echo "Holberton School" > /var/www/html/index.html
+touch /var/www/html/404.html
+echo "Ceci n'est pas une page" > /var/www/html/404.html
 
-# Install Nginx if it's not already installed
-install nginx
+printf %s "server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    add_header X-Served-By $HOSTNAME;
+    root   /var/www/html;
+    index  index.html index.htm;
+    location /redirect_me {
+        return 301 http://fusedtc.tech/;
+    }
+    error_page 404 /404.html;
+    location /404 {
+      root /var/www/html;
+      internal;
+    }
+}" > /etc/nginx/sites-available/default
 
-# Allow Nginx through the firewall
-sudo ufw allow 'Nginx HTTP'
-
-# Give ownership of website files to the user for easy editing
-sudo chown -R "$USER":"$USER" /var/www || \
-sudo mkdir -p /var/www && \
-sudo chown -R "$USER":"$USER" /var/www
-sudo chmod -R 755 /var/www
-
-# Create directories if not present
-for dir in /var/www/{html,error}; do
-  sudo mkdir -p "$dir"
-done
-
-# Create a new index file
-echo "Hello World!" | sudo tee /var/www/html/index.html
-
-# Create a new error page
-echo "Ceci n'est pas une page" | sudo tee /var/www/html/error_404.html
-
-# Backup default server config file
-sudo cp /etc/nginx/sites-enabled/default nginx-sites-enabled_default.backup
-
-# Create a new server config file with some modifications
-sudo tee /etc/nginx/sites-enabled/default >/dev/null <<EOF
-server {
-  listen 80 default_server;
-  listen [::]:80 default_server;
-  root /var/www/html;
-  index index.html index.htm index.nginx-debian.html;
-  server_name _;
-  add_header X-Served-By \$hostname;
-  location / {
-    try_files \$uri \$uri/ =404;
-  }
-  if (\$request_filename ~ redirect_me) {
-    rewrite ^ https://fusedtc.tech/ permanent;
-  }
-  error_page 404 /error_404.html;
-  location = /error_404.html {
-    internal;
-  }
-}
-EOF
-
-# Restart Nginx
 sudo service nginx restart
-
-# Disable debugging
-set +x
