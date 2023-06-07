@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# This Bash script displays information about subdomains.
+
+get_domain_record() {
+  record_type="$(dig "$2"."$1" | awk 'NR==14 { print $4 }')"
+  IP="$(dig "$2"."$1" | awk 'NR==14 { print $5 }')"
+  echo "The subdomain ${2} is a ${record_type} record and points to ${IP}"
+}
+
+# check if the number of arguments passed is equal to 2
+if [ "$#" -ne 2 ];
+then
+    get_domain_record "$1" "www"
+    get_domain_record "$1" "lb-01"
+    get_domain_record "$1" "web-01"
+    get_domain_record "$1" "web-02"
+else
+    get_domain_record "$1" "$2"
+fi
