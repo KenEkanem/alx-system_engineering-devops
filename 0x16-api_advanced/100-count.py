@@ -5,43 +5,46 @@
 import requests
 
 
-def count_words(subreddit, word_list, after='', word_dict={}):
-    """ A function that queries Reddit API for word counts
-    """
-
-    if not word_dict:
-        for word in word_list:
-            if word.lower() not in word_dict:
-                word_dict[word.lower()] = 0
+def count_words(subreddit, word_list, after='', word_dict=None):
+""" This function querries Reddit API for word counts
+"""
+    if word_dict is None:
+        word_dict = {word.lower(): 0 for word in word_list}
 
     if after is None:
-        wordict = sorted(word_dict.items(), key=lambda x: (-x[1], x[0]))
-        for word in wordict:
-            if word[1]:
-                print('{}: {}'.format(word[0], word[1]))
-        return None
+        sorted_words = sorted(word_dict.items(), key=lambda x: (-x[1], x[0]))
+        for word, count in sorted_words:
+            if count > 0:
+                print(f'{word}: {count}')
+        return
 
-    url = 'https://www.reddit.com/r/{}/hot/.json'.format(subreddit)
-    header = {'user-agent': 'redquery'}
-    param = {'limit': 100, 'after': after}
-    response = requests.get(url, headers=header, params=param,
-                            allow_redirects=False)
+    url = f'https://www.reddit.com/r/{subreddit}/hot/.json'
+    headers = {'User-Agent': 'redquery'}
+    params = {'limit': 100, 'after': after}
+    response = requests.get(url, headers=headers, params=params, allow_redirects=False)
 
     if response.status_code != 200:
-        return None
+        return
 
     try:
-        hot = response.json()['data']['children']
-        aft = response.json()['data']['after']
-        for post in hot:
+        data = response.json()['data']
+        posts = data['children']
+        next_after = data['after']
+
+        for post in posts:
             title = post['data']['title']
             lower = [word.lower() for word in title.split(' ')]
 
-            for word in word_dict.keys():
+            for word in word_dict:
                 word_dict[word] += lower.count(word)
 
     except Exception:
-        return None
+        return
 
-    count_words(subreddit, word_list, aft, word_dict)
+    count_words(subreddit, word_list, next_after, word_dict)
 
+
+# Example usage
+# subreddit = 'example_subreddit'
+# word_list = ['word1', 'word2', 'word3']
+# count_words(subreddit, word_list)
