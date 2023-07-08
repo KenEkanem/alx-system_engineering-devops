@@ -1,14 +1,11 @@
 server {
     listen 80;
-    server_name www.fusedtc.tech;
+    server_name _;
 
-    location /airbnb-dynamic/number_odd_or_even/ {
-    proxy_pass http://localhost:5001;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-
-
+    location ~ /airbnb-dynamic/number_odd_or_even/(\d+)$ {
+        proxy_pass http://0.0.0.0:5001/$1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
     }
 
     location /airbnb-onepage/ {
@@ -17,3 +14,4 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
     }
 }
+
