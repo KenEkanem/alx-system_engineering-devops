@@ -1,13 +1,9 @@
 #!/usr/bin/python3
 """ Module for storing the count_words function. """
-from requests import get
 
+import requests
 
 def count_words(subreddit, word_list, word_count=[], page_after=None):
-    """
-    Prints the count of the given words present in the title of the
-    subreddit's hottest articles.
-    """
     headers = {'User-Agent': 'HolbertonSchool'}
 
     word_list = [word.lower() for word in word_list]
@@ -18,7 +14,8 @@ def count_words(subreddit, word_list, word_count=[], page_after=None):
 
     if page_after is None:
         url = 'https://www.reddit.com/r/{}/hot.json'.format(subreddit)
-        r = get(url, headers=headers, allow_redirects=False)
+        r = requests.get(url, headers=headers, allow_redirects=False)
+        
         if r.status_code == 200:
             for child in r.json()['data']['children']:
                 i = 0
@@ -30,13 +27,10 @@ def count_words(subreddit, word_list, word_count=[], page_after=None):
                     i += 1
 
             if r.json()['data']['after'] is not None:
-                count_words(subreddit, word_list,
-                            word_count, r.json()['data']['after'])
+                count_words(subreddit, word_list, word_count, r.json()['data']['after'])
     else:
-        url = ('https://www.reddit.com/r/{}/hot.json?after={}'
-               .format(subreddit,
-                       page_after))
-        r = get(url, headers=headers, allow_redirects=False)
+        url = 'https://www.reddit.com/r/{}/hot.json?after={}'.format(subreddit, page_after)
+        r = requests.get(url, headers=headers, allow_redirects=False)
 
         if r.status_code == 200:
             for child in r.json()['data']['children']:
@@ -48,16 +42,20 @@ def count_words(subreddit, word_list, word_count=[], page_after=None):
                             word_count[i] += 1
                     i += 1
             if r.json()['data']['after'] is not None:
-                count_words(subreddit, word_list,
-                            word_count, r.json()['data']['after'])
+                count_words(subreddit, word_list, word_count, r.json()['data']['after'])
             else:
+                # Create a dictionary to store word counts
                 dicto = {}
+                
+                # Calculate word counts considering duplicates
                 for key_word in list(set(word_list)):
                     i = word_list.index(key_word)
                     if word_count[i] != 0:
-                        dicto[word_list[i]] = (word_count[i] *
-                                               word_list.count(word_list[i]))
+                        dicto[key_word] = word_count[i]
+                
+                # Sort the dictionary based on counts and then alphabetically
+                sorted_dicto = dict(sorted(dicto.items(), key=lambda item: (-item[1], item[0])))
 
-                for key, value in sorted(dicto.items(),
-                                         key=lambda x: (-x[1], x[0])):
+                # Print the sorted word counts
+                for key, value in sorted_dicto.items():
                     print('{}: {}'.format(key, value))
