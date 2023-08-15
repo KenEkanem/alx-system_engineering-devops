@@ -55,9 +55,20 @@ frontend www-https
 # Backend configuration
 backend www-backend
     balance roundrobin
-    server 60352-web-01 34.227.93.91:80 check
-    server 60352-web-02 52.73.25.125:80 check
+    server 60352-web-01 100.26.174.45:80 check
+    server 60352-web-02 100.25.0.41:80 check
 
 # Backend for Let's Encrypt ACME challenge
 backend letsencrypt-backend
     server letsencrypt 127.0.0.1:8080
+
+frontend www-http
+    bind *:80
+    reqadd X-Forwarded-Proto:\ http
+    acl is_root path -i /
+    redirect scheme https code 301 if !is_root
+
+frontend stats
+    bind *:8404
+    stats enable
+    stats uri /stats
