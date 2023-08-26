@@ -1,43 +1,45 @@
 #!/usr/bin/python3
 """
-    Script that uses a restful api for a given employee ID,
-    returns information about his/her TODO list progress.
+A Python script that, using this REST API, for a given employee ID, returns
+information about his/her TODO list progress.
 """
+
 import requests
-import sys
+from sys import argv
 
 
-def get_employee_todo_progress(employee_id):
-    """Makes a GET request to the restful API endpoint"""
-    res = requests.get('https://jsonplaceholder.typicode.com/todos?userId={}'
-                       .format(employee_id))
-    todos = res.json()
+if __name__ == "__main__":
 
-    # Filter completed tasks
-    completed_tasks = [todo for todo in todos if todo['completed']]
+    emp_id = argv[1]
+    user_url = 'https://jsonplaceholder.typicode.com/users'
+    todos_url = 'https://jsonplaceholder.typicode.com/todos'
 
-    # Get employee name
-    user_respons = requests.get('https://jsonplaceholder.typicode.com/users/{}'
-                                .format(employee_id))
-    user = user_respons.json()
-    employee_name = user['name']
+    NUMBER_OF_DONE_TASKS = 0
+    TOTAL_NUMBER_OF_TASKS = 0
+    TASK_TITLE = []
 
-    # Print employee todo list
-    print('Employee Name: OK')  # Fixed the formatting of employee name message
-    print('To Do Count: OK')  # Fixed the formatting of task count message
-    print('First line formatting: OK')  # Fixed the formatting of first line message
-    for task in completed_tasks:
-        print('Task {} in output: OK'.format(task['id']))  # Added task ID validation
+    """store the json output"""
+    u = requests.get(user_url)
+    t = requests.get(todos_url)
 
-    # Check task formatting
-    for task in completed_tasks:
-        if len(task['title']) <= 50:
-            print('Task {} Formatting: OK'.format(task['id']))  # Added task ID validation
-        else:
-            print('Task {} Formatting: Incorrect'.format(task['id']))  # Added task ID validation
+    """Convert json to dictionary"""
+    user_dic = u.json()
+    todo_dic = t.json()
 
+    for todo in todo_dic:
+        if todo.get("userId") == int(emp_id):
+            TOTAL_NUMBER_OF_TASKS += 1
+            if todo.get("completed"):
+                TASK_TITLE.append(todo.get("title"))
+                NUMBER_OF_DONE_TASKS += 1
 
-if __name__ == '__main__':
-    employee_id = int(sys.argv[1])
-    get_employee_todo_progress(employee_id)
+    for user in user_dic:
+        if user.get("id") == int(emp_id):
+            EMPLOYEE_NAME = user.get("name")
+            break
 
+    output = "Employee {} is done with tasks({}/{}):".format(
+                    EMPLOYEE_NAME, NUMBER_OF_DONE_TASKS, TOTAL_NUMBER_OF_TASKS)
+    print(output)
+    for title in TASK_TITLE:
+        print("\t {}".format(title))
