@@ -1,45 +1,27 @@
 #!/usr/bin/python3
-"""
-Module to fetch the number of subscribers for a given subreddit using the Reddit API.
-If the subreddit is invalid, the function returns 0.
-"""
+#!/usr/bin/python3
+"""function that queries the Reddit API and returns the number of subscriber"""
+import requests
 
-from requests import get
 
 def number_of_subscribers(subreddit):
+    """ returns the number of subscribers (not active users, total
+        subscribers) for a given subreddit
     """
-    Queries the Reddit API to retrieve the total number of subscribers for a given subreddit.
 
-    Args:
-        subreddit (str): The name of the subreddit to query.
+    url = 'https://www.reddit.com/r/{}/about.json'.format(subreddit)
+    headers = {"User-Agent": "linux:0x16.api.advanced:v1.0.0 (by /u/bdov_)"}
 
-    Returns:
-        int: The total number of subscribers if the subreddit exists.
-             Returns 0 if the subreddit does not exist or if an error occurs.
-    
-    Example:
-        >>> number_of_subscribers('programming')
-        756024
-
-        >>> number_of_subscribers('this_is_a_fake_subreddit')
-        0
-    """
-    
-    if subreddit is None or not isinstance(subreddit, str):
-        return 0
-
-    # Define the User-Agent and the URL for the subreddit's JSON data
-    user_agent = {"User-agent": "Google Chrome Version 81.0.4044.129"}
-    url = "https://www.reddit.com/r/{}/about.json".format(subreddit)
-    
-    # Send the GET request to the Reddit API
-    response = get(url, headers=user_agent)
-    
     try:
-        # Parse the JSON response and return the subscriber count
-        results = response.json()
-        return results.get("data").get("subscribers")
-    
-    except Exception:
-        # If any error occurs (e.g., subreddit doesn't exist), return 0
+        response = requests.get(url, headers=headers, allow_redirects=False)
+        if response.status_code == 200:
+            # Extract the JSON data from the response
+            data = response.json()
+
+            # extract subscribers from the JSON data
+            subscribers = data["data"]["subscribers"]
+            return subscribers
+        else:
+            return 0
+    except requests.exceptions.RequestException:
         return 0
