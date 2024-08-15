@@ -1,7 +1,10 @@
 #!/usr/bin/python3
 
-"""Function that queries the Reddit API and returns the number of subscribers for a given subreddit."""
-import requests  # 'r' comes before 's' so we import 'requests' before any other 's' imports
+"""
+Function that queries the Reddit API and returns the number of subscribers 
+for a given subreddit, handling both existing and non-existing subreddits.
+"""
+import requests
 
 
 def number_of_subscribers(subreddit):
@@ -12,10 +15,9 @@ def number_of_subscribers(subreddit):
     subreddit (str): The name of the subreddit to query.
 
     Returns:
-    int: Number of subscribers, or 0 if the subreddit does not exist, there is an error, or the input is invalid.
+    int: Number of subscribers, or 0 if the subreddit does not exist, 
+         there is an error, or the input is invalid.
     """
-
-    # Ensure the subreddit name is valid (non-empty and contains no invalid characters)
     if not isinstance(subreddit, str) or subreddit == '' or ' ' in subreddit:
         return 0
 
@@ -25,21 +27,23 @@ def number_of_subscribers(subreddit):
     try:
         response = requests.get(url, headers=headers, allow_redirects=False)
         if response.status_code == 200:
-            # Extract the JSON data from the response
             data = response.json()
-
-            # Extract subscribers from the JSON data
             subscribers = data.get("data", {}).get("subscribers", 0)
             return subscribers
         else:
             return 0
     except requests.exceptions.RequestException as e:
-        # Log the error message here for debugging
         print(f"Error fetching data from Reddit API: {e}")
         return 0
 
 
 if __name__ == "__main__":
-    subreddit = "python"  # Example subreddit
-    subscribers = number_of_subscribers(subreddit)
-    print(f"The number of subscribers for the subreddit '{subreddit}' is: {subscribers}")
+    # Example subreddits for testing
+    subreddits = ["python", "nonexistentsubreddit123"]
+
+    for subreddit in subreddits:
+        subscribers = number_of_subscribers(subreddit)
+        if subscribers > 0:
+            print(f"Output: Existing Subreddit '{subreddit}' has {subscribers} subscribers.")
+        else:
+            print(f"Output: Non-existing Subreddit '{subreddit}' or an error occurred.")
