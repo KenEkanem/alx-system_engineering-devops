@@ -1,14 +1,18 @@
 #!/usr/bin/python3
 """
-Function that queries Reddit API and return
-the number of subscribers for a subreddit.
+This module contains a function that queries the Reddit API
+to return the number of subscribers for a given subreddit.
+The function returns 0 if the subreddit doesn't exist.
 """
+
 import requests
 
 
 def number_of_subscribers(subreddit):
-    """ function that queries  Reddit API and returns the number of
-    subscribers for a subreddit """
+    """ 
+    Queries the Reddit API and returns the number of subscribers
+    for a subreddit. Returns 0 if the subreddit doesn't exist.
+    """
     u_agent = 'Mozilla/5.0'
 
     headers = {
@@ -19,9 +23,7 @@ def number_of_subscribers(subreddit):
     res = requests.get(url, headers=headers, allow_redirects=False)
     if res.status_code != 200:
         return 0
-    dictn = res.json()
-    if 'data' not in dictn:
+    data = res.json()
+    if 'data' not in data or 'subscribers' not in data['data']:
         return 0
-    if 'subscribers' not in dictn.get('data'):
-        return 0
-    return res.json()['data']['subscribers']
+    return data['data']['subscribers']
